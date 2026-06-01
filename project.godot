@@ -14,6 +14,11 @@ config/name="Rain Tomorow"
 run/main_scene="res://scenes/ch01/scene1.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 
+[autoload]
+
+GameState="*res://scripts/managers/GameState.gd"
+Transition="*res://scenes/ui/Transition.tscn"
+
 [display]
 
 window/stretch/mode="canvas_items"

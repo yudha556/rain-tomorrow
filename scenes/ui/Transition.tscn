@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3 uid="uid://dd6f3csejv3po"]
+
+[ext_resource type="Script" path="res://scripts/managers/Transition.gd" id="1_12lr8"]
+
+[sub_resource type="Gradient" id="Gradient_g5c3u"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uui1g"]
+gradient = SubResource("Gradient_g5c3u")
+
+[node name="Transition" type="CanvasLayer"]
+script = ExtResource("1_12lr8")
+
+[node name="fade" type="Node2D" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="fade"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -113.0
+offset_top = -77.0
+offset_right = 1323.0
+offset_bottom = 778.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_uui1g")

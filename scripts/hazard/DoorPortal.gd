@@ -1,8 +1,18 @@
 extends Area2D
 
-@export var next_scene : String
+@export_file("*.tscn") var next_scene: String = "res://scenes/ch01/scene2.tscn"
+var packed_next: PackedScene
 
-func _on_body_entered(body):
-	if body.is_in_group("player"):
-		await get_tree().root.get_node("Main/FadeLayer").fade_to_black()
-		get_tree().change_scene_to_file(next_scene)
+func _ready() -> void:
+	packed_next = load(next_scene)
+
+func _on_body_entered(body: Node) -> void:
+	if not body.is_in_group("player"):
+		return
+
+	var cam := get_viewport().get_camera_2d()
+	if cam:
+		GameState.last_camera_pos = cam.global_position
+
+	await Transition.fade_out(0.25)
+	get_tree().change_scene_to_packed(packed_next)

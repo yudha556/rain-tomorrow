@@ -6,8 +6,8 @@ const DECEL          = 4000.0
 const AIR_ACCEL      = 2400.0
 const AIR_DECEL      = 1200.0
 
-const JUMP_FORCE     = -1320.0
-const GRAVITY_UP     = 1800.0
+const JUMP_FORCE     = -1520.0
+const GRAVITY_UP     = 2000.0
 const GRAVITY_DOWN   = 2800.0
 const JUMP_CUT       = 0.4
 const COYOTE_TIME    = 0.1
@@ -31,10 +31,12 @@ var is_jump_cut      = false
 @onready var anim = $AnimatedSprite2D
 
 # === INTRO AUTO WALK ===
-var can_control      := false
-var auto_walk        := true
-var intro_target_x   := 500.0
-var intro_speed      := 140.0
+@export var enable_intro := true
+@export var intro_target_x := 500.0
+@export var intro_speed := 140.0
+
+var can_control := false
+var auto_walk := true
 
 # === DEATH ===
 var spawn_position   : Vector2
@@ -43,6 +45,8 @@ var is_dead          := false
 
 func _ready():
 	spawn_position = global_position
+	auto_walk = enable_intro
+	can_control = not enable_intro
 
 
 func _physics_process(delta):
@@ -69,6 +73,13 @@ func _physics_process(delta):
 		was_on_floor = is_on_floor()
 		anim.flip_h  = false
 		anim.play("walk")
+		return
+	
+	# === CONTROL LOCK ===
+	if not can_control:
+		move_and_slide()
+		was_on_floor = is_on_floor()
+		update_animation()
 		return
 
 	# === DASH COOLDOWN ===
@@ -166,8 +177,8 @@ func die():
 	was_on_floor = false
 
 	# balik ke intro / atau langsung kontrol
-	auto_walk = true
-	can_control = false
+	auto_walk = enable_intro
+	can_control = not enable_intro
 
 	# kasih delay kecil sebelum bisa gerak lagi
 	await get_tree().create_timer(0.15).timeout
