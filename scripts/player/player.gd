@@ -12,6 +12,7 @@ const GRAVITY_DOWN   = 2800.0
 const JUMP_CUT       = 0.4
 const COYOTE_TIME    = 0.1
 const JUMP_BUFFER    = 0.1
+const MAX_AIR_JUMPS  = 1
 
 const DASH_SPEED     = 3800.0
 const DASH_TIME      = 0.125
@@ -27,6 +28,7 @@ var coyote_timer     = 0.0
 var jump_buffer      = 0.0
 var was_on_floor     = false
 var is_jump_cut      = false
+var air_jumps_left   = MAX_AIR_JUMPS
 
 @onready var anim = $AnimatedSprite2D
 
@@ -61,6 +63,7 @@ func _physics_process(delta):
 			velocity.y += GRAVITY_DOWN * delta
 		else:
 			velocity.y = 0.0
+			air_jumps_left = MAX_AIR_JUMPS
 
 		velocity.x = move_toward(velocity.x, intro_speed, 200.0 * delta)
 
@@ -86,7 +89,10 @@ func _physics_process(delta):
 	if dash_cooldown > 0:
 		dash_cooldown -= delta
 
-	# === ISI ULANG DASH SAAT LANDING ===
+	# === ISI ULANG DASH DAN DOUBLE JUMP SAAT LANDING ===
+	if on_floor:
+		air_jumps_left = MAX_AIR_JUMPS
+
 	if on_floor and not was_on_floor:
 		dash_used = false
 
@@ -134,13 +140,19 @@ func _physics_process(delta):
 		else:
 			velocity.x = move_toward(velocity.x, 0.0, decel * delta)
 
-		# === JUMP ===
-		var can_jump = on_floor or coyote_timer > 0
-		if jump_buffer > 0 and can_jump:
-			velocity.y   = JUMP_FORCE
-			jump_buffer  = 0.0
-			coyote_timer = 0.0
-			is_jump_cut  = false
+		# === JUMP + DOUBLE JUMP ===
+		var can_ground_jump = on_floor or coyote_timer > 0
+		var can_air_jump = not can_ground_jump and air_jumps_left > 0
+
+		if jump_buffer > 0 and (can_ground_jump or can_air_jump):
+			velocity.y = JUMP_FORCE
+			jump_buffer = 0.0
+			is_jump_cut = false
+
+			if can_ground_jump:
+				coyote_timer = 0.0
+			else:
+				air_jumps_left -= 1
 
 		if Input.is_action_just_released("ui_up") and velocity.y < 0:
 			velocity.y *= JUMP_CUT
@@ -167,6 +179,7 @@ func die():
 	dash_cooldown = 0.0
 	coyote_timer = 0.0
 	jump_buffer = 0.0
+	air_jumps_left = MAX_AIR_JUMPS
 
 	# optional: kasih efek "mati stop dulu"
 	await get_tree().create_timer(0.25).timeout

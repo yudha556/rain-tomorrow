@@ -11,8 +11,8 @@ func _on_body_entered(body: Node) -> void:
 		return
 
 	var cam := get_viewport().get_camera_2d()
-	if cam:
-		GameState.last_camera_pos = cam.global_position
+	#if cam:
+		#GameState.last_camera_pos = cam.global_position
 
 	await Transition.fade_out(0.25)
 	get_tree().change_scene_to_packed(packed_next)
